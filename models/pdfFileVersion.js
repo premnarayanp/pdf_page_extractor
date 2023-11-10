@@ -18,19 +18,9 @@ const pdfVersionSchema = new mongoose.Schema({
         ref: 'PDFfile'
     },
 
-    date: {
-        type: String,
-        required: false,
-    },
-    time: {
-        type: String,
-        required: false,
-    }
-
-
 }, {
     timestamps: true
 });
 
 const PdfVersion = mongoose.model('PdfVersion', pdfVersionSchema);
-module.export = PdfVersion;
+module.exports = PdfVersion;

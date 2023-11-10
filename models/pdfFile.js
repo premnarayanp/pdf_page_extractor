@@ -28,10 +28,6 @@ const pdfSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PdfVersion'
     }],
-    lastChat: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Chats'
-    },
 }, {
     timestamps: true
 });
