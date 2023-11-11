@@ -4,10 +4,9 @@ const router = express.Router();
 
 const pdf_versionController = require('../controllers/pdf_versionController');
 
-router.post('/create', passport.authenticate('jwt', { session: false }), pdf_versionController.createdPDF_version);
-// router.get('/loads/:version_id', passport.authenticate('jwt', { session: false }), pdf_versionController.loadPDF_version);
-// router.get('/posts', passport.authenticate('jwt', { session: false }), pdf_versionController.listOfPdf_version);
-// router.get('/downloads/:version_id', passport.authenticate('jwt', { session: false }), pdf_versionController.downloadPDF_version);
-// router.delete('/delete/:version_id', passport.authenticate('jwt', { session: false }), pdf_versionController.deletePDF_version);
-
+router.post('/create', passport.authenticate('jwt', { session: false }), pdf_versionController.create);
+router.get('/posts/:pdf_id', passport.authenticate('jwt', { session: false }), pdf_versionController.listOf);
+router.delete('/delete/:pdfVersion_id', passport.authenticate('jwt', { session: false }), pdf_versionController.delete);
+//router.get('/downloads/:pdfVersion_id', passport.authenticate('jwt', { session: false }), pdf_versionController.download);
+//router.get('/loads/:pdfVersion_id', passport.authenticate('jwt', { session: false }), pdf_versionController.load);
 module.exports = router;

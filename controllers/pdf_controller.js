@@ -80,7 +80,7 @@ module.exports.listOfPdf = async function(req, res) {
 
     try {
         // const pdfFiles = await PDFfile.find({ user: req.user._id }).populate('user');
-        const pdfFiles = await PDFfile.find({ user: req.user._id }).populate('pdfVersion');
+        const pdfFiles = await PDFfile.find({ user: req.user._id }).populate('pdfVersionList');
         if (pdfFiles) {
             return res.json({ success: true, msg: "success", data: { pdfList: pdfFiles } });
         } else {
@@ -89,6 +89,7 @@ module.exports.listOfPdf = async function(req, res) {
 
 
     } catch (error) {
+        console.log("============error=============", error);
         return res.json({ success: false, msg: "Internal server Error..", data: null });
     }
 

@@ -24,7 +24,7 @@ const pdfSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    pdfVersion: [{
+    pdfVersionList: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PdfVersion'
     }],
