@@ -201,3 +201,27 @@ module.exports.download = async function(req, res) {
 
     }
 }
+
+
+//================edit pdf version====================
+module.exports.edit = async function(req, res) {
+    try {
+        const pdfVersion = await PdfVersion.findById({ _id: req.body.pdfVersion_id });
+        var pageList = req.body.pageList.split(",").map(i => Number(i));
+        if (pdfVersion) {
+            pdfVersion.pageList = pageList
+
+            //console.log("=========pdfVersion=========", pdfVersion);
+            pdfVersion.save();
+            return res.json(200, { success: true, msg: "success", data: pdfVersion });
+        } else {
+            return res.json(200, { success: false, msg: "original pdf not exist ", data: null });
+        }
+
+
+    } catch (error) {
+        console.log("===========error================", error)
+        return res.json({ success: false, msg: "Internal server Error..", data: null });
+    }
+
+}

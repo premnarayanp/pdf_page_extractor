@@ -9,4 +9,5 @@ router.get('/posts/:pdf_id', passport.authenticate('jwt', { session: false }), p
 router.delete('/delete/:pdfVersion_id', passport.authenticate('jwt', { session: false }), pdf_versionController.delete);
 router.get('/downloads/:pdfVersion_id', passport.authenticate('jwt', { session: false }), pdf_versionController.download);
 router.get('/loads/:pdfVersion_id', passport.authenticate('jwt', { session: false }), pdf_versionController.load);
+router.post('/edit', passport.authenticate('jwt', { session: false }), pdf_versionController.edit);
 module.exports = router;
