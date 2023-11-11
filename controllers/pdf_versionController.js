@@ -2,6 +2,43 @@ const PDFfile = require('../models/pdfFile');
 const PdfVersion = require('../models/pdfFileVersion');
 const path = require('path');
 const fs = require('fs');
+const stream = require("stream");
+
+const { PDFDocument } = require("pdf-lib");
+
+
+//=======================CreateNew Pdf From Existing Pdf using pdf-lib================================
+const createNewPdf = async(pdfBufferOrFile, pdfVersion) => {
+
+    const pageIndexList = pdfVersion.pageList;
+    const pdfNewVersionSize = pageIndexList.length;
+
+    const pdfFile = await PDFDocument.load(pdfBufferOrFile, pdfVersion);
+    //const totalPages = pdfFile.getPageCount();
+
+    const pdfNewVersion = await PDFDocument.create()
+    for (let i = 0; i < pdfNewVersionSize; i++) {
+        const [existingPage] = await pdfNewVersion.copyPages(pdfFile, [pageIndexList[i] - 1])
+        pdfNewVersion.insertPage(i, existingPage);
+    }
+
+    const pdfBytes = await pdfNewVersion.save();
+    //console.log("==================pdf=byte======================", pdfBytes)
+    return pdfBytes;
+
+
+}
+
+// const loader = async() => {
+//     const pdfVersion = {
+//         versionName: "pdf-2",
+//         pageList: [1, 5, 6, 10]
+//     }
+//     const data = fs.readFileSync('./uploads/posts/pdf/' + 'p-1699595359526Lec4-Notes-Forms.pdf');
+//     const pdfVersionBuffer = await createNewPdf(data, pdfVersion);
+//     console.log("==============pdfVersionBuffer=============", pdfVersionBuffer);
+// }
+//loader();
 
 //=========================Upload/create the PDFVersion======================
 //actually  not upload file but store page order in PdfVersion models
@@ -88,24 +125,28 @@ module.exports.listOf = async function(req, res) {
 
 }
 
-//=========================Load My PDF========================
+//=========================Load My PDFVersion========================
 module.exports.load = async function(req, res) {
     try {
-        const PDFs = await PDFfile.findById({ _id: req.params.pdf_id });
-        if (PDFs) {
 
-            if (PDFs.user.equals(req.user._id)) {
-                //res.sendFile(path.join(__dirname, '../uploads/posts/pdf/') + PDFs.fileName);
+        //console.log("==================inside load==================")
+        const pdfVersion = await PdfVersion.findById({ _id: req.params.pdfVersion_id }).populate('pdf');
+        if (pdfVersion) {
 
-                // fs.readFile('./uploads/posts/pdf/' + PDFs.fileName, function(err, data) {
-                //     res.contentType("application/pdf");
-                //     console.log("======data=======", data);
-                //     res.send(data);
-                // });
+            if (pdfVersion.user.equals(req.user._id)) {
+                const data = fs.readFileSync('./uploads/posts/pdf/' + pdfVersion.pdf.fileName);
+                const pdfVersionBuffer = await createNewPdf(data, pdfVersion);
 
-                const data = fs.readFileSync('./uploads/posts/pdf/' + PDFs.fileName);
-                res.contentType("application/pdf");
-                res.send(data);
+
+                const stream = require("stream");
+                const readStream = new stream.PassThrough();
+                readStream.end(pdfVersionBuffer);
+                res.set("Content-disposition", 'attachment; filename=' + "output.docx");
+                res.set("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.pdf");
+                readStream.pipe(res);
+
+                // res.contentType("application/pdf");
+                // res.send(pdfVersionBuffer);
 
             } else {
                 return res.json({ success: false, msg: "You could not view this pdf..", data: { PDFs: null } });
@@ -126,22 +167,33 @@ module.exports.load = async function(req, res) {
 //=====================Download pdf version===========================
 module.exports.download = async function(req, res) {
     try {
-        const PDFs = await PDFfile.findById({ _id: req.params.pdf_id });
-        if (PDFs) {
 
-            if (PDFs.user.equals(req.user._id)) {
+        //console.log("==================inside load==================")
+        const pdfVersion = await PdfVersion.findById({ _id: req.params.pdfVersion_id }).populate('pdf');
+        if (pdfVersion) {
 
-                //res.sendFile(path.join(__dirname, '../uploads/posts/pdf/') + PDFs.fileName);
-                res.download('./uploads/posts/pdf/' + PDFs.fileName);
+            if (pdfVersion.user.equals(req.user._id)) {
+                const data = fs.readFileSync('./uploads/posts/pdf/' + pdfVersion.pdf.fileName);
+                const pdfVersionBuffer = await createNewPdf(data, pdfVersion);
+
+
+                const stream = require("stream");
+                const readStream = new stream.PassThrough();
+                readStream.end(pdfVersionBuffer);
+                res.set("Content-disposition", 'attachment; filename=' + "output.docx");
+                res.set("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.pdf");
+                readStream.pipe(res);
+                //res.download();
 
             } else {
-                return res.json({ success: false, msg: "You could not download this pdf..", data: { PDFs: null } });
+                return res.json({ success: false, msg: "You could not view this pdf..", data: { PDFs: null } });
 
             }
 
         } else {
             return res.json({ success: false, msg: "Could not found pdf,Pdf not available..", data: { PDFs: null } });
         }
+
 
     } catch (error) {
         console.log('error in finding Pdf', error);
