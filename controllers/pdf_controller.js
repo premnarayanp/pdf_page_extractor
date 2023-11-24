@@ -6,12 +6,14 @@ const fs = require('fs');
 //Upload the PDF
 module.exports.uploadPDF = async function(req, res) {
     try {
+       // console.log("===============req===========", req);
         PDFfile.uploadedPDF(req, res, async function(error) {
             //console.log("=========req.file=========", req.file);
 
             if (error) {
                 console.log("multer Error**************", error);
-                return res.json({ success: false, msg: "Server Error While Upload PDF", data: null });
+                //return res.json({ success: false, msg: "Server Error While Upload PDF", data: null });
+                return res.json({ success: false, msg: error.message, data: null });
             }
 
             const fileName = req.file.filename;

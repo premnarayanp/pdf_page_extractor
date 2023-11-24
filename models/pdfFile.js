@@ -34,8 +34,16 @@ const pdfSchema = new mongoose.Schema({
 
 
 const storage = multer.diskStorage({
+
+   
     destination: function(req, file, cb) {
-        cb(null, path.join(__dirname, '..', PDF_PATH));
+       console.log("===============req===========", file);
+       let ext=path.extname(file.originalname);
+       if(ext!=='.pdf'){
+         return cb(new Error("Invalid File Type,You can upload only pdf"));
+        }
+
+     cb(null, path.join(__dirname, '..', PDF_PATH));
     },
     filename: function(req, file, cb) {
 
@@ -48,4 +56,4 @@ pdfSchema.statics.pdfPath = PDF_PATH;
 
 const PDFfile = mongoose.model('PDFfile', pdfSchema);
 
-module.exports = PDFfile;
+module.exports = PDFfile; 
